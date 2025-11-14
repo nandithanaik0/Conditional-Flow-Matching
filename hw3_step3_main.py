@@ -26,7 +26,7 @@ def train_main_loop(train_loader, n_epochs, optimizer, FM, model, device, save_d
           x0 = torch.randn_like(x1)
           t, xt, cond_vec_field = FM.sample_location_and_conditional_flow(x0, x1)
           vt = model(xt, t)
-          loss = (vt - cond_vec_field).pow(2).flatten(1).sum(1).mean()   # TODO: Define the loss function given in HW description.
+          loss = (vt - cond_vec_field).pow(2).flatten(1).sum(1).mean()   
           loss.backward()
           optimizer.step()
 
@@ -44,7 +44,7 @@ def train_main_loop(train_loader, n_epochs, optimizer, FM, model, device, save_d
               torch.linspace(0, 1, 2, device=device),
               atol=1e-4,
               rtol=1e-4,
-              method= "dopri5",    # TODO: Choose your own ODE solver (see the torchdiffeq documentation on GitHub for available options).
+              method= "dopri5",   
           )
 
       grid = make_grid(
@@ -84,24 +84,17 @@ class ConditionalFlowMatcher:
         self.sigma = sigma
 
     def compute_mu_t(self, x1, t):
-        ############################
-        # TODO: Implement the function computing μ_t(x_1)
-        ############################
         t_like = pad_t_like_x(t, x1)
         mu_t = t_like * x1
         return mu_t
 
     def compute_sigma_t(self, t):
-        ############################
-        # TODO: Implement the function computing σ_t
-        ############################
+        # Implementing the function computing σ_t
         sigma_t = t * self.sigma + (1.0 - t)
         return sigma_t
 
     def compute_conditional_velocity_field(self, x1, t, xt):
-        ############################
-        # TODO: Implement the function computing the conditional velocity field v(x_t, t; x_1)
-        ############################
+        # Implementing the function computing the conditional velocity field v(x_t, t; x_1)
         mu_t = self.compute_mu_t(x1, t)
         sigma_t_scalar = self.compute_sigma_t(t)
         sigma_t = pad_t_like_x(sigma_t_scalar, x1)
@@ -115,9 +108,7 @@ class ConditionalFlowMatcher:
         return cond_vec_field
 
     def sample_xt(self, x0, x1, t, epsilon):
-        ############################
-        # TODO: Implement the function drawing a sample from the probability path N(x; μ_t(x1), σ_t^2 I)
-        ############################
+        # Implement the function drawing a sample from the probability path N(x; μ_t(x1), σ_t^2 I)
         mu_t = self.compute_mu_t(x1, t)
         sigma_t = pad_t_like_x(self.compute_sigma_t(t), x1)
         xt = mu_t + sigma_t * epsilon
@@ -143,7 +134,7 @@ def main():
     sigma = 0.0
     n_feat = 128
     learning_rate = 5e-5
-    num_epochs = 40   # TODO: Set an appropriate number of epochs. 30–50 should give you reasonable results
+    num_epochs = 40
 
     tensor_transform = transforms.Compose([transforms.ToTensor()])
     train_dataset = datasets.MNIST(root = "./data",	train = True, download = True,	transform = tensor_transform)    
